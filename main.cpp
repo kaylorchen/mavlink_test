@@ -1,5 +1,7 @@
 #include <iostream>
 #include "dji_mavlink/common/mavlink.h"
+#include "dji_mavlink/dji_mavlink_adapter.h"
+#include "thread"
 
 int main() {
     mavlink_heartbeat_t  value;
@@ -28,5 +30,20 @@ int main() {
         printf("%02X ", buf[i]);
     }
     printf("\n");
+    mavlink_adapter::set_mavlink("192.168.254.223",14550);
+    std::thread th_rec([&]{
+                           mavlink_adapter::recv_function();
+                       }
+    );
+    while(1)
+    {
+        mavlink_heartbeat_t heartbeat;
+        heartbeat.type = MAV_TYPE_QUADROTOR; //四旋翼
+        heartbeat.autopilot = MAV_AUTOPILOT_GENERIC; //通用自动驾驶仪
+        heartbeat.base_mode = MAV_MODE_FLAG_MANUAL_INPUT_ENABLED; // 远程控制输入
+        heartbeat.system_status = MAV_STATE_ACTIVE;
+        mavlink_adapter::send_heartbeat(&heartbeat);
+        usleep(1000000);
+    }
     return 0;
 }
