@@ -35,10 +35,9 @@ namespace mavlink_adapter {
 
     mavlink_heartbeat_t *mavlink_connector::make_heartbeat() {
         heartbeat_t->system_status = MAV_STATE_ACTIVE;
-        heartbeat_t->base_mode = MAV_MODE_MANUAL_DISARMED;
+        heartbeat_t->base_mode = MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
         heartbeat_t->autopilot = MAV_AUTOPILOT_GENERIC;
         heartbeat_t->type = MAV_TYPE_QUADROTOR;
-        heartbeat_t->mavlink_version = 3;
         return heartbeat_t;
     }
 
@@ -136,6 +135,7 @@ namespace mavlink_adapter {
                 printf("I can hear you heart, sys_id = %d, seq = %d\n", msg->sysid, msg->seq);
                 break;
             case MAVLINK_MSG_ID_COMMAND_LONG:
+                printf("I receive a command long message\n");
                 handle_command_long(msg);
                 break;
             case MAVLINK_MSG_ID_MISSION_REQUEST_LIST:
@@ -144,9 +144,10 @@ namespace mavlink_adapter {
             case MAVLINK_MSG_ID_MISSION_SET_CURRENT:
             case MAVLINK_MSG_ID_MISSION_ITEM:
                 handle_missions(msg);
-                //break;
+                printf("aaa\n");
+                break;
             default:
-                printf("msg !!!!!!%d\n", msg->msgid);
+                printf("msg id is %d\n", msg->msgid);
         }
     }
 

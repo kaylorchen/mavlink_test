@@ -27,20 +27,49 @@ namespace mavlink_adapter {
         }
     }
 
-    void send_heartbeat(mavlink_heartbeat_t *heartbeat){
-        mavlink_message_t  msg;
+    void send_heartbeat(mavlink_heartbeat_t *heartbeat) {
+        mavlink_message_t msg;
         mavlink_msg_heartbeat_encode(0, 200, &msg, heartbeat);
-        uint8_t buf[279];
-        int len = mavlink_msg_to_send_buffer(buf, &msg);
         mav->send_msg(&msg);
     }
 
-    void send_attitude(mavlink_attitude_quaternion_t *attitudeQuaternion)
-    {
-        mavlink_message_t  msg;
+    void send_attitude(mavlink_attitude_quaternion_t *attitudeQuaternion) {
+        mavlink_message_t msg;
         mavlink_msg_attitude_quaternion_encode(0, 200, &msg, attitudeQuaternion);
-        uint8_t buf[279];
-        int len = mavlink_msg_to_send_buffer(buf, &msg);
         mav->send_msg(&msg);
+    }
+
+    void send_system_time(mavlink_system_time_t *systemTime) {
+        mavlink_message_t msg;
+        mavlink_msg_system_time_encode(0, 200, &msg, systemTime);;
+        mav->send_msg(&msg);
+    }
+
+    void send_gps_global_origin(mavlink_gps_global_origin_t *gpsGlobalOrigin) {
+        mavlink_message_t msg;
+        mavlink_msg_gps_global_origin_encode(0, 200, &msg, gpsGlobalOrigin);;
+        mav->send_msg(&msg);
+    }
+
+    void send_gps_raw_int(mavlink_gps_raw_int_t *gps) {
+        mavlink_message_t msg;
+        mavlink_msg_gps_raw_int_encode(0, 200, &msg, gps);;
+        mav->send_msg(&msg);
+    }
+
+    void send_sys_status(mavlink_sys_status_t *sysStatus){
+        mavlink_message_t msg;
+        mavlink_msg_sys_status_encode(0, 200, &msg, sysStatus);;
+        mav->send_msg(&msg);
+    }
+
+    void loop_callback(long timestamp)
+    {
+        mav -> fast_send();
+        static int k = 0;
+        if (k++ % 50 == 0)
+        {
+            mav -> slow_send();
+        }
     }
 }
