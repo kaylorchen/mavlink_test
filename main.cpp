@@ -7,7 +7,7 @@ int main() {
     mavlink_heartbeat_t value;
     mavlink_heartbeat_t *heartbeat_t = &value;
     heartbeat_t->system_status = MAV_STATE_ACTIVE;
-    heartbeat_t->base_mode = MAV_MODE_AUTO_ARMED;
+    heartbeat_t->base_mode = 100;
     heartbeat_t->autopilot = MAV_AUTOPILOT_GENERIC;
     heartbeat_t->type = MAV_TYPE_QUADROTOR;
     heartbeat_t->mavlink_version = 3;
@@ -19,18 +19,7 @@ int main() {
         printf("%02X ", buf[i]);
     }
     printf("\n");
-    heartbeat_t->system_status = MAV_STATE_ACTIVE;
-    heartbeat_t->base_mode = MAV_MODE_AUTO_ARMED;
-    heartbeat_t->autopilot = MAV_AUTOPILOT_GENERIC;
-    heartbeat_t->type = MAV_TYPE_QUADROTOR;
-    heartbeat_t->mavlink_version = 3;
-    mavlink_msg_heartbeat_encode(0, 200, &msg, heartbeat_t);
-    len = mavlink_msg_to_send_buffer(buf, &msg);
-    for (int i = 0; i < len; ++i) {
-        printf("%02X ", buf[i]);
-    }
-    printf("\n");
-    mavlink_adapter::set_mavlink("192.168.254.223", 14550);
+    mavlink_adapter::set_mavlink("127.0.0.1", 14550);
     std::thread th_rec([&] {
                            mavlink_adapter::recv_function();
                        }
@@ -47,8 +36,10 @@ int main() {
         sysStatus.onboard_control_sensors_present = 326171663;
         sysStatus.onboard_control_sensors_enabled = 309369871;
         sysStatus.onboard_control_sensors_health = 57711631;
-        mavlink_adapter::send_sys_status(&sysStatus);
-        usleep(1000000);
+//        mavlink_adapter::send_sys_status(&sysStatus);
+        mavlink_adapter::send_mavlink_msg(&sysStatus, mavlink_msg_sys_status_encode);
+        mavlink_adapter::send_mavlink_msg(heartbeat_t, mavlink_msg_heartbeat_encode);
+        usleep(100000);
     }
     printf("___________________\n");
     usleep(5000000);
